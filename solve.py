@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from maths import build_weighted_graph, order_nodelist
+from maths import build_weighted_graph, order_nodelist, build_segmentation_image
 import networkx
 import numpy as np
 import scipy
@@ -12,7 +12,7 @@ def solve(seeds_dic, image_array):
     K = len(seeds_dic.keys())
     seeds_coords_list = list(seeds_dic.keys())
     nx, ny = image_array.shape
-    pixel_count = nx * ny
+    pixel_number = nx * ny
 
     print(f'Image dimensions : {image_array.shape}\nNumber of seeds : K={K}')
 
@@ -39,16 +39,18 @@ def solve(seeds_dic, image_array):
         unseeded_potentials_list.append(unseeded_potentials)
 
     pixel_colour_dic = seeds_dic
-    for pixel_index in range(0,pixel_count-K):
+    print (f'seeds_dic = {seeds_dic}')
+    for pixel_index in range(K,pixel_number):
         pixel_coords = ordred_nodes[pixel_index]
-        pixel_probabilities = [potentials[pixel_index] for potentials in unseeded_potentials_list]
+        pixel_probabilities = [potentials[pixel_index - K] for potentials in unseeded_potentials_list]
         argmax_seed_index = np.argmax(pixel_probabilities)
         argmax_seed_coords = seeds_coords_list[argmax_seed_index]
         pixel_colour_dic.update({
             pixel_coords: seeds_dic[argmax_seed_coords]
         })
-    print(pixel_colour_dic)
-
+    segmentation_image = build_segmentation_image(nx, ny, pixel_colour_dic)
+    plt.imshow(segmentation_image)
+    plt.show()
 
     # print(f'seeds = {seeds_coords_list}')
     # print(f'nodes = {list(graph)}')
