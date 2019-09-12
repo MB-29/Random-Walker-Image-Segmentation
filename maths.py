@@ -1,6 +1,7 @@
 import numpy as np
 import itertools
 import networkx
+from config import COLOUR_RGB_MAP
 
 
 def xy_array(array):
@@ -40,3 +41,10 @@ def order_nodelist(nodes_list, seeds_list):
     for seed in seeds_list:
         nodes_list.insert(0, nodes_list.pop(nodes_list.index(seed)))
     return nodes_list
+
+def build_segmentation_image(nx, ny, pixel_colour_dic):
+    image = np.zeros((nx, ny, 3))
+    for i in range(nx):
+        for j in range(ny):
+            image[i][j] = COLOUR_RGB_MAP[pixel_colour_dic[(i,j)]]
+    return image
