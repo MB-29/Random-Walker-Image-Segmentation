@@ -3,12 +3,15 @@
 from numpy import linalg
 from tkinter import *
 from tkinter.filedialog import askopenfilename
-import matplotlib.pyplot as plt
 from PIL import Image, ImageTk
+import numpy as np
+import logging
 
 import config
 from solve import solve
+from maths import xy_array
 
+logging.basicConfig(level=logging.DEBUG)
 
 def interface():
 
@@ -23,10 +26,10 @@ def interface():
     file_path = askopenfilename(parent=root, title='Select an image.')
     print(f'opening file {file_path}')
     image = Image.open(file_path)
-    image = ImageTk.PhotoImage(image)
-    canvas.create_image(0, 0, image=image, anchor="nw")
+    tk_image = ImageTk.PhotoImage(image)
+    canvas.create_image(0, 0, image=tk_image, anchor="nw")
     canvas.config(scrollregion=canvas.bbox(ALL))
-    image_array = plt.imread(file_path)
+    image_array = xy_array(np.array(image))
 
     def on_solve():
         solve(seeds, image_array)
@@ -41,7 +44,7 @@ def interface():
         colours_list.insert(END, colour)
 
     # Initialize variables
-    seeds = []
+    seeds = {}
     CURRENT_COLOUR = StringVar()
 
     def add_seed(event):
@@ -49,11 +52,9 @@ def interface():
             print('No colour selected !')
             return
         x, y = canvas_coords(event, canvas)
-        seeds.append({
-            "x": x,
-            "y": y,
-            "colour": CURRENT_COLOUR.get()
-        })
+        seeds.update({
+            (x,y): CURRENT_COLOUR.get()
+            })
         canvas.create_oval(x-config.OVAL_SIZE/2, y-config.OVAL_SIZE/2, x+config.OVAL_SIZE/2, y +
                            config.OVAL_SIZE/2, width=2, fill=CURRENT_COLOUR.get())
         print(f'New seed added : {[x,y]}')
@@ -78,3 +79,5 @@ def canvas_coords(event, canvas):
 
 if __name__ == "__main__":
     interface()
+
+
