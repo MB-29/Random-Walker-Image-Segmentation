@@ -29,22 +29,30 @@ def build_weighted_graph(image_array):
     nx, ny = image_array.shape
 
     for i, j in itertools.product(range(nx), range(ny)):
-        for k, l in itertools.product(range(nx), range(ny)):
-            distance = abs(i-k) + abs(j-l)
-            if distance > 0 and distance < 2:
-                u, v = image_array[i][j], image_array[k][l]
-                G.add_edge((i, j), (k, l), weight=weight(float(u), float(v)))
+        neighbours = get_neighbour_pixels(i,j, nx, ny)
+        for pixel in neighbours:
+            print(f'(i,j) (k,l) = {(i,j)}, {pixel}')
+            u, v = image_array[i][j], image_array[pixel[0]][pixel[1]]
+            G.add_edge((i, j), pixel, weight=weight(float(u), float(v)))
     return G
 
+def get_neighbour_pixels(i,j,nx,ny):
+    neighbours = []
+    for pixel in [(i, j-1), (i-1, j), (i, j+1), (i, j+1)]:
+        x, y = pixel
+        if x >= 0 and x < nx and y >= 0 and y < ny:
+            neighbours.append((x,y))
+    return neighbours
 
 def order_nodelist(nodes_list, seeds_list):
     for seed in seeds_list:
         nodes_list.insert(0, nodes_list.pop(nodes_list.index(seed)))
     return nodes_list
 
+
 def build_segmentation_image(nx, ny, pixel_colour_dic):
     image = np.zeros((nx, ny, 3))
     for i in range(nx):
         for j in range(ny):
-            image[i][j] = COLOUR_RGB_MAP[pixel_colour_dic[(i,j)]]
+            image[i][j] = COLOUR_RGB_MAP[pixel_colour_dic[(i, j)]]
     return image

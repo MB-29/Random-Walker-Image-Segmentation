@@ -32,8 +32,6 @@ def solve(seeds_dic, image_array):
     for seed_index in range(K):
         seeds_vector = [0] * K
         seeds_vector[seed_index] = 1
-        print(
-            f'shapes :  {laplacian_unseeded.shape}, {(-b_transpose @ seeds_vector).shape}')
         unseeded_potentials = scipy.sparse.linalg.spsolve(
             laplacian_unseeded, -b_transpose @ seeds_vector)
         unseeded_potentials_list.append(unseeded_potentials)
