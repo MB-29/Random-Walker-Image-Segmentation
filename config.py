@@ -14,3 +14,4 @@ COLOUR_RGB_MAP = {
     "green": [0, 255, 0],
     "blue": [0, 0, 255]
 }
+BETA = 100

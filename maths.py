@@ -1,7 +1,7 @@
 import numpy as np
 import itertools
 import networkx
-from config import COLOUR_RGB_MAP
+from config import COLOUR_RGB_MAP, BETA
 
 
 def xy_array(array):
@@ -19,8 +19,8 @@ def xy_array(array):
     return result
 
 
-def weight(alpha, beta):
-    arg = -(alpha-beta)*(alpha-beta)*100
+def weight(g, h):
+    arg = -(g-h)*(g-h)*BETA
     return np.exp(arg)
 def build_weighted_graph(image_array):
     G = networkx.Graph()
@@ -29,9 +29,9 @@ def build_weighted_graph(image_array):
     for x, y in itertools.product(range(nx), range(ny)):
         neighbours = get_neighbour_pixels(x,y, nx, ny)
         for pixel in neighbours:
-            alpha, beta = image_array[y][x], image_array[pixel[1]][pixel[0]]
-            w = weight(float(alpha), float(beta))
-            print(f'pixels = {(x,y)}, {pixel} ; alpha,beta = {(alpha,beta)} w = {w}')
+            g, h = image_array[y][x], image_array[pixel[1]][pixel[0]]
+            w = weight(float(g), float(h))
+            print(f'pixels = {(x,y)}, {pixel} ; g,h = {(g,h)} w = {w}')
             G.add_edge((x, y), pixel, weight=w)
     return G
 
