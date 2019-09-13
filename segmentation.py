@@ -7,11 +7,10 @@ from PIL import Image, ImageTk
 import numpy as np
 import logging
 
+
 import config
 from solve import solve
 from maths import xy_array
-
-logging.basicConfig(level=logging.DEBUG)
 
 def interface():
 
@@ -20,7 +19,7 @@ def interface():
     frame = Frame(root)
     canvas = Canvas(frame)
     canvas.grid(row=0, column=0, sticky=W)
-    frame.pack(fill=BOTH, expand=1)
+    frame.pack()
 
     # Open image
     file_path = askopenfilename(parent=root, title='Select an image.')

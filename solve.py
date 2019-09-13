@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from maths import build_weighted_graph, order_nodelist, build_segmentation_image
+from maths import build_weighted_graph, get_ordered_nodelist, build_segmentation_image
 import networkx
 import numpy as np
 import scipy
@@ -7,11 +7,13 @@ import scipy
 
 def solve(seeds_dic, image_array):
 
-    print('Starting resolution')
+    print(f'Starting resolution')
+    print(f'seeds : {seeds_dic}')
 
     K = len(seeds_dic.keys())
     seeds_coords_list = list(seeds_dic.keys())
-    nx, ny = image_array.shape
+    print(f'seeds_coords : {seeds_coords_list}')
+    ny, nx = image_array.shape
     pixel_number = nx * ny
 
     print(f'Image dimensions : {image_array.shape}\nNumber of seeds : K={K}')
@@ -19,15 +21,15 @@ def solve(seeds_dic, image_array):
     # Build weighted graph and linear algebra objects
     print('building graph')
     graph = build_weighted_graph(image_array)
-    print(
-        f'Number of edges : {len(graph.edges)}, number of vertices : {len(graph.nodes())}')
-    ordred_nodes = order_nodelist(list(graph), seeds_coords_list)
-    print(f'ordered nodes : {ordred_nodes}')
-    print(f'computing laplacian')
-    laplacian = networkx.laplacian_matrix(graph, nodelist=ordred_nodes)
+    ordered_nodes = get_ordered_nodelist(list(graph), seeds_coords_list)
+    print('computing laplacian')
+    laplacian = networkx.laplacian_matrix(graph, nodelist=ordered_nodes, weight='weight')
+    print('extracting sub-matrices')
     laplacian_unseeded = laplacian[K:, K:]
     b_transpose = laplacian[K:, :K]
 
+    # Solve linear system for every initial condition
+    print('solving linear systems')
     unseeded_potentials_list = []
     for seed_index in range(K):
         seeds_vector = [0] * K
@@ -36,26 +38,22 @@ def solve(seeds_dic, image_array):
             laplacian_unseeded, -b_transpose @ seeds_vector)
         unseeded_potentials_list.append(unseeded_potentials)
 
+    # For each pixel choose maximum likelihood seed
+    print('Assigning maximum likelihood seed')
     pixel_colour_dic = seeds_dic
-    print (f'seeds_dic = {seeds_dic}')
     for pixel_index in range(K,pixel_number):
-        pixel_coords = ordred_nodes[pixel_index]
+        pixel_coords = ordered_nodes[pixel_index]
         pixel_probabilities = [potentials[pixel_index - K] for potentials in unseeded_potentials_list]
         argmax_seed_index = np.argmax(pixel_probabilities)
         argmax_seed_coords = seeds_coords_list[argmax_seed_index]
         pixel_colour_dic.update({
             pixel_coords: seeds_dic[argmax_seed_coords]
         })
+    
+    # Build output
+    print('Building output')
     segmentation_image = build_segmentation_image(nx, ny, pixel_colour_dic)
     plt.imshow(segmentation_image)
     plt.show()
-
-    # print(f'seeds = {seeds_coords_list}')
-    # print(f'nodes = {list(graph)}')
-    # print(f'ordered = {ordred_nodes}')
-    # print(f'laplacian : {laplacian}')
-
-    # plt.imshow(image_array)
-    # plt.show()
 
     return
