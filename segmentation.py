@@ -20,6 +20,8 @@ def interface():
     canvas = Canvas(frame)
     canvas.grid(row=0, column=0, sticky=W)
     frame.pack()
+    beta_entry = Entry(root)
+    beta_entry.pack()
 
     # Open image
     file_path = askopenfilename(parent=root, title='Select an image.')
@@ -31,7 +33,8 @@ def interface():
     image_array = xy_array(np.array(image))
 
     def on_solve():
-        solve(seeds, image_array)
+        beta = float(beta_entry.get())
+        solve(seeds, image_array, beta=beta)
         root.quit()
 
     solve_button = Button(root, text="Solve", command=on_solve)

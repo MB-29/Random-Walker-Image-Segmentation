@@ -1,11 +1,12 @@
 import matplotlib.pyplot as plt
-from maths import build_weighted_graph, get_ordered_nodelist, build_segmentation_image
 import networkx
 import numpy as np
 import scipy
 
+from maths import build_weighted_graph, get_ordered_nodelist, build_segmentation_image
+from config import BETA
 
-def solve(seeds_dic, image_array):
+def solve(seeds_dic, image_array, beta=BETA):
 
     print(f'Starting resolution')
     print(f'seeds : {seeds_dic}')
@@ -20,7 +21,7 @@ def solve(seeds_dic, image_array):
 
     # Build weighted graph and linear algebra objects
     print('building graph')
-    graph = build_weighted_graph(image_array)
+    graph = build_weighted_graph(image_array, beta=beta)
     ordered_nodes = get_ordered_nodelist(list(graph), seeds_coords_list)
     print('computing laplacian')
     laplacian = networkx.laplacian_matrix(graph, nodelist=ordered_nodes, weight='weight')

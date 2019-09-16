@@ -19,10 +19,11 @@ def xy_array(array):
     return result
 
 
-def weight(g, h):
-    arg = -(g-h)*(g-h)*BETA
+def weight(g, h, beta):
+    arg = -(g-h)*(g-h)*beta
     return np.exp(arg)
-def build_weighted_graph(image_array):
+
+def build_weighted_graph(image_array, beta):
     G = networkx.Graph()
     ny, nx = image_array.shape
 
@@ -30,7 +31,7 @@ def build_weighted_graph(image_array):
         neighbours = get_neighbour_pixels(x,y, nx, ny)
         for pixel in neighbours:
             g, h = image_array[y][x], image_array[pixel[1]][pixel[0]]
-            w = weight(float(g), float(h))
+            w = weight(float(g), float(h), beta)
             print(f'pixels = {(x,y)}, {pixel} ; g,h = {(g,h)} w = {w}')
             G.add_edge((x, y), pixel, weight=w)
     return G
