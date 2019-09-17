@@ -1,7 +1,7 @@
 import numpy as np
 import itertools
 import networkx
-from config import COLOUR_RGB_MAP, BETA
+from config import COLOUR_RGB_MAP, BETA, INTENSITY_NORMALIZATION
 
 
 def xy_array(array):
@@ -12,10 +12,10 @@ def xy_array(array):
     result = np.zeros([ny, nx])
     for i in range(ny):
         for j in range(nx):
-            value = 0
+            square_intensity = 0
             for k in range(m-1):
-                value += (array[i][j][k]*1.0/255) ** 2
-            result[i][j] = np.sqrt(value)
+                square_intensity += array[i][j][k] ** 2
+            result[i][j] = np.sqrt(square_intensity)/INTENSITY_NORMALIZATION
     return result
 
 

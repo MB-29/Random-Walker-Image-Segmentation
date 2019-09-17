@@ -6,6 +6,7 @@ import scipy
 from maths import build_weighted_graph, get_ordered_nodelist, build_segmentation_image
 from config import BETA
 
+
 def solve(seeds_dic, image_array, beta=BETA):
 
     print(f'Starting resolution')
@@ -24,7 +25,8 @@ def solve(seeds_dic, image_array, beta=BETA):
     graph = build_weighted_graph(image_array, beta=beta)
     ordered_nodes = get_ordered_nodelist(list(graph), seeds_coords_list)
     print('computing laplacian')
-    laplacian = networkx.laplacian_matrix(graph, nodelist=ordered_nodes, weight='weight')
+    laplacian = networkx.laplacian_matrix(
+        graph, nodelist=ordered_nodes, weight='weight')
     print('extracting sub-matrices')
     laplacian_unseeded = laplacian[K:, K:]
     b_transpose = laplacian[K:, :K]
@@ -33,6 +35,7 @@ def solve(seeds_dic, image_array, beta=BETA):
     print('solving linear systems')
     unseeded_potentials_list = []
     for seed_index in range(K):
+        print(f'Solving system {seed_index} out of {K-1}')
         seeds_vector = [0] * K
         seeds_vector[seed_index] = 1
         unseeded_potentials = scipy.sparse.linalg.spsolve(
@@ -41,16 +44,17 @@ def solve(seeds_dic, image_array, beta=BETA):
 
     # For each pixel choose maximum likelihood seed
     print('Assigning maximum likelihood seed')
-    pixel_colour_dic = seeds_dic
-    for pixel_index in range(K,pixel_number):
+    pixel_colour_dic = seeds_dic.copy()
+    for pixel_index in range(K, pixel_number):
         pixel_coords = ordered_nodes[pixel_index]
-        pixel_probabilities = [potentials[pixel_index - K] for potentials in unseeded_potentials_list]
+        pixel_probabilities = [potentials[pixel_index - K]
+                               for potentials in unseeded_potentials_list]
         argmax_seed_index = np.argmax(pixel_probabilities)
         argmax_seed_coords = seeds_coords_list[argmax_seed_index]
         pixel_colour_dic.update({
             pixel_coords: seeds_dic[argmax_seed_coords]
         })
-    
+
     # Build output
     print('Building output')
     segmentation_image = build_segmentation_image(nx, ny, pixel_colour_dic)
