@@ -1,6 +1,8 @@
 import numpy as np
 import itertools
 import networkx
+import time
+
 from config import COLOUR_RGB_MAP, BETA, INTENSITY_NORMALIZATION
 
 
@@ -26,7 +28,7 @@ def weight(g, h, beta):
 def build_weighted_graph(image_array, beta):
     G = networkx.Graph()
     ny, nx = image_array.shape
-
+    start_time = time.time()
     for x, y in itertools.product(range(nx), range(ny)):
         neighbours = get_neighbour_pixels(x,y, nx, ny)
         for pixel in neighbours:
@@ -34,13 +36,14 @@ def build_weighted_graph(image_array, beta):
             w = weight(float(g), float(h), beta)
             print(f'pixels = {(x,y)}, {pixel} ; g,h = {(g,h)} w = {w}')
             G.add_edge((x, y), pixel, weight=w)
+    print("--- %s seconds ---" % (time.time() - start_time))
     return G
 
 def get_neighbour_pixels(x,y,nx,ny):
     neighbours = []
-    for pixel in [(x, y-1), (x, y+1), (x-1, y), (x+1, y)]:
+    for pixel in [(x, y-1), (x-1, y)]:
         u, v = pixel
-        if u >= 0 and u < nx and v >= 0 and v < ny:
+        if u >= 0 and v >= 0:
             neighbours.append((u,v))
     return neighbours
 
