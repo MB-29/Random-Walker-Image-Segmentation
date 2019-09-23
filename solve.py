@@ -3,7 +3,7 @@ import networkx
 import numpy as np
 import scipy
 
-from maths import build_weighted_graph, get_ordered_nodelist, build_segmentation_image
+from maths import build_weighted_graph, get_ordered_nodelist, build_segmentation_image, draw_contours
 from config import BETA
 
 
@@ -58,7 +58,9 @@ def solve(seeds_dic, image_array, beta=BETA):
     # Build output
     print('Building output')
     segmentation_image = build_segmentation_image(nx, ny, pixel_colour_dic)
-    plt.imshow(segmentation_image)
+    contours_array = draw_contours(nx, ny, pixel_colour_dic)
+    plt.imshow(image_array, cmap='gray')
+    plt.imshow(contours_array)
     plt.show()
 
     return

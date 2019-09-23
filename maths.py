@@ -25,27 +25,29 @@ def weight(g, h, beta):
     arg = -(g-h)*(g-h)*beta
     return np.exp(arg)
 
+
 def build_weighted_graph(image_array, beta):
     G = networkx.Graph()
     ny, nx = image_array.shape
     start_time = time.time()
     for x, y in itertools.product(range(nx), range(ny)):
-        neighbours = get_neighbour_pixels(x,y, nx, ny)
+        neighbours = get_neighbour_pixels(x, y, nx, ny)
         for pixel in neighbours:
             g, h = image_array[y][x], image_array[pixel[1]][pixel[0]]
             w = weight(float(g), float(h), beta)
-            print(f'pixels = {(x,y)}, {pixel} ; g,h = {(g,h)} w = {w}')
             G.add_edge((x, y), pixel, weight=w)
     print("--- %s seconds ---" % (time.time() - start_time))
     return G
 
-def get_neighbour_pixels(x,y,nx,ny):
+
+def get_neighbour_pixels(x, y, nx, ny):
     neighbours = []
     for pixel in [(x, y-1), (x-1, y)]:
         u, v = pixel
         if u >= 0 and v >= 0:
-            neighbours.append((u,v))
+            neighbours.append((u, v))
     return neighbours
+
 
 def get_ordered_nodelist(nodes_list, seeds_list):
     for seed in seeds_list[::-1]:
@@ -60,3 +62,14 @@ def build_segmentation_image(nx, ny, pixel_colour_dic):
         for j in range(nx):
             image[i][j] = COLOUR_RGB_MAP[pixel_colour_dic[(j, i)]]
     return image
+
+
+def draw_contours(nx, ny, pixel_colour_dic):
+    contours_array = np.zeros((ny, nx, 4))
+    for x, y in itertools.product(range(nx), range(ny)):
+        colour = pixel_colour_dic[(x, y)]
+        neighbours = get_neighbour_pixels(x, y, nx, ny)
+        for neighbour_pixel in neighbours:
+            if pixel_colour_dic[neighbour_pixel] != colour:
+                contours_array[y][x] = [255,0,0,1]
+    return contours_array
