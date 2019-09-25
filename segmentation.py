@@ -1,98 +1,106 @@
-#! /usr/bin/env python3
-
-from numpy import linalg
-from tkinter import *
-from tkinter.filedialog import askopenfilename
-from PIL import Image, ImageTk
+import pickle
+import networkx
 import numpy as np
-import logging
-from collections import OrderedDict
+import itertools
+import scipy
+import matplotlib.pyplot as plt
 
-import config
-from solve import solve
-from maths import xy_array
+from maths import get_neighbour_pixels, get_ordered_nodelist
+from config import COLOUR_RGB_MAP, COLOURS_DIC
 
-def interface():
+def gaussian(g, h, beta):
+    arg = -(g-h)*(g-h)*beta
+    return np.exp(arg)
 
-    root = Tk()
-    frame = Frame(root)
+class Segmentation:
+    def __init__(self, image_array, beta, seeds_dic):
+        self.image_array = image_array
+        self.ny, self.nx = image_array.shape
+        self.pixel_number = self.nx * self.ny
+        self.beta = beta
+        self.seeds_dic = seeds_dic
+        self.pixel_colour_dic = self.seeds_dic.copy()
+        self.graph = networkx.Graph()
+        self.weight_function = gaussian
+        self.K = len(self.seeds_dic.keys())
+        self.solved = False
 
-    # Choose image
-    file_path = askopenfilename(parent=root, title='Select an image.')
-    print(f'opening file {file_path}')
-    image = Image.open(file_path)
-    tk_image = ImageTk.PhotoImage(image)
-    height, width = tk_image.height(), tk_image.width()
+        print(f'Image dimensions : {self.image_array.shape}\nNumber of seeds : K={self.K}')
 
-    # Build canvas
-    canvas = Canvas(frame, width=width+100, height=height+100)
-    canvas.grid()
-    frame.pack()
-    beta_entry = Entry(root)
-    beta_entry.pack()
-    beta_entry.insert(0,'Beta parameter')
+
+    def build_weighted_graph(self):
+        for x, y in itertools.product(range(self.nx), range(self.ny)):
+            neighbours = get_neighbour_pixels(x, y, self.nx, self.ny)
+            for pixel in neighbours:
+                g, h = self.image_array[y][x], self.image_array[pixel[1]][pixel[0]]
+                w = self.weight_function(float(g), float(h), self.beta)
+                self.graph.add_edge((x, y), pixel, weight=w)
+
+    def build_linear_algebra(self):
+        print('building graph')
+        self.build_weighted_graph()
+        self.ordered_nodes = get_ordered_nodelist(list(self.graph), list(self.seeds_dic.keys()))
+        print('computing laplacian')
+        self.laplacian = networkx.laplacian_matrix(
+            self.graph, nodelist=self.ordered_nodes, weight='weight')
+        print('extracting sub-matrices')
+        self.laplacian_unseeded = self.laplacian[self.K:, self.K:]
+        self.b_transpose = self.laplacian[self.K:, :self.K]
     
-    canvas.create_image(0, 0, image=tk_image, anchor="nw")
-    canvas.config(scrollregion=canvas.bbox(ALL))
-    image_array = xy_array(np.array(image))
-
-    def on_solve():
-        beta_parameter = float(beta_entry.get())
-        solve(seeds, image_array, beta=beta_parameter)
-
-    solve_button = Button(root, text="Solve", command=on_solve)
-    solve_button.pack()
-
-    # remove_last_button = Button(canvas, text="Remove last seed", command=remove_seed)
-    solve_button.pack()
-
-    colours_list = Listbox(root)
-    colours_list.pack()
-    for colour in config.COLOURS_DIC.keys():
-        colours_list.insert(END, colour)
-
-    # Initialize variables
-    seeds = OrderedDict()
-    CURRENT_COLOUR = StringVar()
-    seed_ovals = []
-
-    def add_seed(event):
-        if not CURRENT_COLOUR.get():
-            print('No colour selected !')
-            return
-        x, y = canvas_coords(event, canvas)
-        seeds.update({
-            (x,y): CURRENT_COLOUR.get()
+    def solve_linear_systems(self):
+        print('solving linear systems')
+        unseeded_potentials_list = []
+        for seed_index in range(self.K):
+            print(f'Solving system {seed_index} out of {self.K-1}')
+            seeds_vector = [0] * self.K
+            seeds_vector[seed_index] = 1
+            unseeded_potentials = scipy.sparse.linalg.spsolve(
+                self.laplacian_unseeded, -self.b_transpose @ seeds_vector)
+            unseeded_potentials_list.append(unseeded_potentials)
+        return unseeded_potentials_list
+    
+    def assign_max_likelihood(self, unseeded_potentials_list):
+        print('Assigning maximum likelihood seed')
+        for pixel_index in range(self.K, self.pixel_number):
+            pixel_coords = self.ordered_nodes[pixel_index]
+            pixel_probabilities = [potentials[pixel_index - self.K]
+                                for potentials in unseeded_potentials_list]
+            argmax_seed_index = np.argmax(pixel_probabilities)
+            argmax_seed_coords = list(self.seeds_dic.keys())[argmax_seed_index]
+            self.pixel_colour_dic.update({
+                pixel_coords: self.seeds_dic[argmax_seed_coords]
             })
-        last_seed = canvas.create_oval(x-config.OVAL_SIZE/2, y-config.OVAL_SIZE/2, x+config.OVAL_SIZE/2, y +
-                           config.OVAL_SIZE/2, width=2, fill=CURRENT_COLOUR.get())
-        seed_ovals.append(last_seed)
-        print(f'New seed added : {[x,y]}')
-
-    def remove_seed(event):
-        seeds.pop(next(reversed(seeds)))
-        canvas.delete(seed_ovals.pop(len(seed_ovals) -1))
-
-    def select_colour(event):
-
-        CURRENT_COLOUR.set(colours_list.get(colours_list.curselection()))
-        print(f'current colour = {CURRENT_COLOUR.get()}')
-
-    canvas.bind("<ButtonPress-1>", add_seed)
-    canvas.bind("<ButtonPress-2>", remove_seed)
-    colours_list.bind("<<ListboxSelect>>", select_colour)
-    solve_button.bind
-
-    root.mainloop()
-
-# Transform event coordinates into canvas coordinates
-
-
-def canvas_coords(event, canvas):
-    return (canvas.canvasx(event.x), canvas.canvasy(event.y))
-
-
-if __name__ == "__main__":
-    interface()
-
-
+    def build_segmentation_image(self):
+        image = np.zeros((self.ny, self.nx, 3))
+        for i in range(self.ny):
+            for j in range(self.nx):
+                image[i][j] = COLOUR_RGB_MAP[self.pixel_colour_dic[(j, i)]]
+        self.segmentation_image = image
+        return image
+    
+    def draw_contours(self):
+        contours_array = np.zeros((self.ny, self.nx, 4))
+        for x, y in itertools.product(range(self.nx), range(self.ny)):
+            colour = self.pixel_colour_dic[(x, y)]
+            neighbours = get_neighbour_pixels(x, y, self.nx, self.ny)
+            for neighbour_pixel in neighbours:
+                if self.pixel_colour_dic[neighbour_pixel] != colour:
+                    contours_array[y][x] = [255,0,0,1]
+        self.contours_array = contours_array
+        return contours_array
+    
+    def solve(self):
+        self.solved = True
+        self.build_weighted_graph()
+        self.build_linear_algebra()
+        unseeded_potentials_list = self.solve_linear_systems()
+        self.assign_max_likelihood(unseeded_potentials_list)
+        return self.pixel_colour_dic
+    
+    def plot_contours(self):
+        if not self.solved:
+            raise Exception('Impossible to plot segmentation before solving')
+        self.draw_contours()
+        plt.imshow(self.image_array, cmap='gray')
+        plt.imshow(self.contours_array)
+        plt.show()

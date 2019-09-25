@@ -1,7 +1,8 @@
 # Random Walker Algorithm project
 
 ## Requirements
-
+* Python 3.7
+* Modules :
 ```bash
 pip install -r requirements.txt
 ```
@@ -9,7 +10,7 @@ pip install -r requirements.txt
 ## Getting started
 
 ```bash
-python segmentation.py
+python random_walker.py
 ```
 
 * Select an image.

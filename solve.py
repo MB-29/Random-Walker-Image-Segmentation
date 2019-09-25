@@ -5,6 +5,7 @@ import scipy
 
 from maths import build_weighted_graph, get_ordered_nodelist, build_segmentation_image, draw_contours
 from config import BETA
+from segmentation import Segmentation
 
 
 def solve(seeds_dic, image_array, beta=BETA):
@@ -17,6 +18,8 @@ def solve(seeds_dic, image_array, beta=BETA):
     print(f'seeds_coords : {seeds_coords_list}')
     ny, nx = image_array.shape
     pixel_number = nx * ny
+
+
 
     print(f'Image dimensions : {image_array.shape}\nNumber of seeds : K={K}')
 
