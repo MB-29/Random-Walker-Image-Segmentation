@@ -27,6 +27,11 @@ class Segmentation:
 
         print(f'Image dimensions : {self.image_array.shape}\nNumber of seeds : K={self.K}')
 
+    def save(self):
+        file_path = f'segmentation_objects/segmentation'
+        print(f'Saving segmentation object to {file_path}')
+        file = open(file_path, 'wb')
+        pickle.dump(self, file)
 
     def build_weighted_graph(self):
         for x, y in itertools.product(range(self.nx), range(self.ny)):

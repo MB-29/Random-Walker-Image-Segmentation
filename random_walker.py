@@ -9,7 +9,6 @@ import logging
 from collections import OrderedDict
 
 import config
-from solve import solve
 from maths import xy_array
 from segmentation import Segmentation
 
@@ -37,17 +36,20 @@ def interface():
     canvas.config(scrollregion=canvas.bbox(ALL))
     image_array = xy_array(np.array(image))
 
+    save_segmentation = True
+
     def on_solve():
         beta_parameter = float(beta_entry.get())
         segmentation = Segmentation(image_array, beta_parameter, seeds)
         segmentation.solve()
+        if save_segmentation:
+            segmentation.save()
         segmentation.plot_contours()
         # solve(seeds, image_array, beta=beta_parameter)
 
     solve_button = Button(root, text="Solve", command=on_solve)
     solve_button.pack()
 
-    # remove_last_button = Button(canvas, text="Remove last seed", command=remove_seed)
     solve_button.pack()
 
     colours_list = Listbox(root)
