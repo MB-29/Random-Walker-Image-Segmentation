@@ -4,16 +4,18 @@ import numpy as np
 import itertools
 import scipy
 import matplotlib.pyplot as plt
+import datetime
+import os
 
 from maths import get_neighbour_pixels, get_ordered_nodelist
-from config import COLOUR_RGB_MAP, COLOURS_DIC
+from config import COLOUR_RGB_MAP, COLOURS_DIC, OUTPUT_PATH
 
 def gaussian(g, h, beta):
     arg = -(g-h)*(g-h)*beta
     return np.exp(arg)
 
 class Segmentation:
-    def __init__(self, image_array, beta, seeds_dic):
+    def __init__(self, image_array, beta, seeds_dic, file_name):
         self.image_array = image_array
         self.ny, self.nx = image_array.shape
         self.pixel_number = self.nx * self.ny
@@ -24,11 +26,20 @@ class Segmentation:
         self.weight_function = gaussian
         self.K = len(self.seeds_dic.keys())
         self.solved = False
+        self.image_name = os.path.splitext(file_name)[0]
+        self.segmenation_name = f'rw_{self.image_name}_{datetime.datetime.now()}'
 
         print(f'Image dimensions : {self.image_array.shape}\nNumber of seeds : K={self.K}')
 
-    def save(self):
-        file_path = f'segmentation_objects/segmentation'
+        # output directory
+        if not os.path.isdir(OUTPUT_PATH):
+            try:
+                os.mkdir(OUTPUT_PATH)
+            except Exception as e:
+                print(e)       
+
+    def save_object(self):
+        file_path = os.path.join(OUTPUT_PATH, f'{self.segmenation_name}.pickle')
         print(f'Saving segmentation object to {file_path}')
         file = open(file_path, 'wb')
         pickle.dump(self, file)

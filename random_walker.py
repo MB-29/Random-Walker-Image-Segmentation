@@ -7,6 +7,7 @@ from PIL import Image, ImageTk
 import numpy as np
 import logging
 from collections import OrderedDict
+import os
 
 import config
 from maths import xy_array
@@ -19,6 +20,7 @@ def interface():
 
     # Choose image
     file_path = askopenfilename(parent=root, title='Select an image.')
+    file_name = os.path.basename(file_path)
     print(f'opening file {file_path}')
     image = Image.open(file_path)
     tk_image = ImageTk.PhotoImage(image)
@@ -40,10 +42,10 @@ def interface():
 
     def on_solve():
         beta_parameter = float(beta_entry.get())
-        segmentation = Segmentation(image_array, beta_parameter, seeds)
+        segmentation = Segmentation(image_array, beta_parameter, seeds, file_name)
         segmentation.solve()
         if save_segmentation:
-            segmentation.save()
+            segmentation.save_object()
         segmentation.plot_contours()
         # solve(seeds, image_array, beta=beta_parameter)
 
