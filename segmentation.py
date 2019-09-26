@@ -4,11 +4,14 @@ import numpy as np
 import itertools
 import scipy
 import matplotlib.pyplot as plt
-import datetime
+import matplotlib.image as mpimg
+import numpy.random as rd
 import os
+import datetime
 
-from maths import get_neighbour_pixels, get_ordered_nodelist
-from config import COLOUR_RGB_MAP, COLOURS_DIC, OUTPUT_PATH
+from maths import get_neighbour_pixels, get_ordered_nodelist, pixel_norm_2, gaussian
+from config import COLOUR_RGB_MAP, COLOURS_DIC, OUTPUT_PATH, NOISE_PATH, GARBAGE_PATH
+from constructor import load_pickle
 
 def gaussian(g, h, beta):
     arg = -(g-h)*(g-h)*beta
@@ -86,6 +89,7 @@ class Segmentation:
             self.pixel_colour_dic.update({
                 pixel_coords: self.seeds_dic[argmax_seed_coords]
             })
+    
     def build_segmentation_image(self):
         image = np.zeros((self.ny, self.nx, 3))
         for i in range(self.ny):
@@ -120,3 +124,67 @@ class Segmentation:
         plt.imshow(self.image_array, cmap='gray')
         plt.imshow(self.contours_array)
         plt.show()
+       
+    def seed_neighboor(self,x,y):
+        for i in self.seeds_dic.keys():
+            if abs(x-i[0])<=1 and abs(y-i[1])<=1:
+                return True
+        return False
+     
+class Noise(Segmentation):
+    
+    def __init__(self,image_array, beta, seeds_dic,noise_prob):
+        Segmentation.__init__(self, image_array, beta, seeds_dic)
+        self.noise_prob=noise_prob
+        self.add_noise()
+        self.image_name=""
+        
+    def add_noise(self):
+        for i in range(self.ny):
+            nb=int(2*rd.rand()*self.nx*self.noise_prob)
+            for j in range(nb):
+                if self.seed_neighboor(i,j):
+                    continue
+                else:   
+                    if self.image_array[i][rd.randint(self.nx)]>0.5:
+                        self.image_array[i][rd.randint(self.nx)]=0
+                    else:
+                        self.image_array[i][rd.randint(self.nx)]=1
+                    
+    def backup_pickle(self):
+        
+        # backup of the initial data
+        current =os.getcwd()
+        date = datetime.datetime.now()
+        
+        # backup at the chosen place
+        os.chdir(OUTPUT_PATH+"/"+ NOISE_PATH +"/"+self.image_name)
+        if os.path.isdir("noise_prob="+str(self.noise_prob)):
+            os.chdir("noise_prob="+str(self.noise_prob))
+        else:
+            os.mkdir("noise_prob="+str(self.noise_prob))
+            os.chdir("noise_prob="+str(self.noise_prob))
+        os.mkdir("beta : "+str(self.beta)+" - "+"date : "+str(date))
+        os.chdir("beta : "+str(self.beta)+" - "+"date : "+str(date))
+        pickle.dump(self, open("noise_prob="+str(self.noise_prob), 'wb'))
+        mpimg.imsave("avant seg, noise_prob="+str(self.noise_prob)+".png", self.image_array,format='png')
+        mpimg.imsave("apres seg, noise_prob="+str(self.noise_prob)+".png", self.segmentation_image,format='png')
+        
+        # Back to current location
+        os.chdir(current)
+        
+        # Backup in the security place
+        os.chdir(OUTPUT_PATH+"/"+GARBAGE_PATH)
+        if os.path.isdir("noise_prob="+str(self.noise_prob)):
+            os.chdir("noise_prob="+str(self.noise_prob))
+        else:
+            os.mkdir("noise_prob="+str(self.noise_prob))
+            os.chdir("noise_prob="+str(self.noise_prob))
+        os.mkdir("beta : "+str(self.beta)+" - "+"date : "+str(date))
+        os.chdir("beta : "+str(self.beta)+" - "+"date : "+str(date))
+        pickle.dump(self, open("noise_prob="+str(self.noise_prob), 'wb'))
+        mpimg.imsave("avant seg, noise_prob="+str(self.noise_prob)+".png", self.image_array,format='png')
+        mpimg.imsave("apres seg, noise_prob="+str(self.noise_prob)+".png", self.segmentation_image,format='png')
+        
+        # Back to current location
+        os.chdir(current)

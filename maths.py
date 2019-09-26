@@ -2,6 +2,8 @@ import numpy as np
 import itertools
 import networkx
 import time
+import os
+import pickle
 
 from config import COLOUR_RGB_MAP, BETA, INTENSITY_NORMALIZATION
 
@@ -73,3 +75,28 @@ def draw_contours(nx, ny, pixel_colour_dic):
             if pixel_colour_dic[neighbour_pixel] != colour:
                 contours_array[y][x] = [255,0,0,1]
     return contours_array
+
+def gaussian(g, h, beta):
+    arg = -(g-h)*(g-h)*beta
+    return np.exp(arg)
+
+def pixel_norm_2(pixel):
+    norm=0
+    for i in pixel:
+        norm+=i**2
+    return np.sqrt(norm)/INTENSITY_NORMALIZATION
+
+def load_pickle(nom_fichier,chemin_enregistrement):
+    
+    # Saving current working folder
+    current =os.getcwd()
+    
+    # backup at the chosen place
+    os.chdir(chemin_enregistrement)
+    retur=pickle.load(open(nom_fichier, 'rb'))
+    os.chdir(current)
+    
+    return retur
+
+
+    
