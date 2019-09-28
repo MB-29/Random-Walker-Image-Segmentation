@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy.random as rd
 import os
-import png
 from PIL import Image
 
 
