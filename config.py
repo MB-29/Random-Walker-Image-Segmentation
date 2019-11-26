@@ -1,6 +1,5 @@
 import numpy as np
 
-IMG_PATH = 'rectangles.png'
 OVAL_SIZE = 10
 COLOURS_DIC = {
     "white": 0,
@@ -16,7 +15,6 @@ COLOUR_RGB_MAP = {
     "green": [0, 255, 0],
     "blue": [0, 0, 255]
 }
-BETA = 100
 INTENSITY_NORMALIZATION = np.sqrt(3) * 255
 
 OUTPUT_PATH = 'output'

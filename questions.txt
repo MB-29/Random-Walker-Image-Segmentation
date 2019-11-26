@@ -1,0 +1,8 @@
+Limites : contrastes, bruit, différents contrastes selon difféentes directions (ex : antenne)SegNet : combien d’images nécessaires pour segmenter le carré sur fond blanc, puis si d’un coup deux CC dans l’imageFinalement, image médicale Réaprentissage ?Preprocessing ou algorithme unique?Si le temps le permet : transfer learning de segnet pour l’imagerie médicale. Cb de nouvelles images pour apprendre l’imagerie médicaleConclusion : savoir décider quelle méthode utiliser étant donné une imageLRM abdominale3 couleurs : autre, foie, tumeurAjout de bruit,Superposition des contours,Image en fonction de beta, Rajouter moins de seeds,Image directionnelle,Composantes connexesEnregistrer :Positions des seedsCouleurs segmentationImage bruitéeBruit (proba)BetaImage initialeUS Postal The element of statiscal learning, friedman,Onglet dataChiffre 2 : réussir à segmenter les pixels noirs à l’intérieurRandom walker soleil Mêmes seeds mais les enlever un par un => tracer l’erreurErreur fonction des positions des seeds : gradient descentSi beta est trop grand, et gros contraste à l’intérieur de l’objet, la marche aléatoire préfère sortirTe.sun@polSegnet-tensorflowNombre minimum de seeds pour < 10 % pour plusieurs imagesbeta* en fonction de la positionerreur(beta, std) plot 3Dbruiter frontière
+beta* sans GOT
+interface tkinter
+explication chien
+influence rgb
+
+Segnet petit bruit
+rotation progressive segnet
