@@ -5,7 +5,7 @@ import time
 import os
 import pickle
 
-from config import COLOUR_RGB_MAP, INTENSITY_NORMALIZATION, TIMINGS_PATH
+from config import COLOUR_RGB_MAP, INTENSITY_NORMALIZATION
 
 
 def xy_array(array):
@@ -53,9 +53,3 @@ def pixel_norm_2(pixel):
     for i in pixel:
         norm += i**2
     return np.sqrt(norm)/INTENSITY_NORMALIZATION
-
-
-def record_time(nx, ny, K, timing):
-    with open(TIMINGS_PATH, 'a') as timings_file:
-        timings_file.write(f'{nx*ny} {K} {timing}\n')
-

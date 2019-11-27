@@ -13,7 +13,7 @@ import time
 import json
 
 import config
-from utils import xy_array, record_time
+from utils import xy_array
 from segmentation import Segmentation
 
 
@@ -56,12 +56,8 @@ def interface():
         beta_parameter = float(beta_entry.get())
         segmentation = Segmentation(
             image_array, beta_parameter, seeds, image_name)
-        start_time = time.time()
+            
         segmentation.solve()
-        end_time = time.time()
-
-        record_time(segmentation.nx, segmentation.ny,
-                    segmentation.K, end_time-start_time)
 
         if save_segmentation.get():
             segmentation.build_segmentation_image()
