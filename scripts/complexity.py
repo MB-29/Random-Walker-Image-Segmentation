@@ -1,7 +1,10 @@
 import matplotlib.pyplot as plt
 from numpy import log
 
-from config import TIMINGS_PATH
+def record_time(nx, ny, K, timing):
+    with open(TIMINGS_PATH, 'a') as timings_file:
+        timings_file.write(f'{nx*ny} {K} {timing}\n')
+
 
 N, R = [], []
 a, b = 1, -9.3

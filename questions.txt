@@ -1,8 +1,56 @@
-LimitesÊ: contrastes, bruit, diffrents contrastes selon diffentes directions (exÊ: antenne)SegNetÊ: combien dÕimages ncessaires pour segmenter le carr sur fond blanc, puis si dÕun coup deux CC dans lÕimageFinalement, image mdicale RaprentissageÊ?PreprocessingÊou algorithme unique?Si le temps le permetÊ: transfer learning de segnet pour lÕimagerie mdicale. Cb de nouvelles images pour apprendre lÕimagerie mdicaleConclusionÊ: savoir dcider quelle mthode utiliser tant donn une imageLRM abdominale3 couleursÊ: autre, foie, tumeurAjout de bruit,Superposition des contours,Image en fonction de beta, Rajouter moins de seeds,Image directionnelle,Composantes connexesEnregistrerÊ:Positions des seedsCouleurs segmentationImage bruiteBruit (proba)BetaImage initialeUS Postal The element of statiscal learning, friedman,Onglet dataChiffre 2 : russir ˆ segmenter les pixels noirs ˆ lÕintrieurRandom walker soleil Mmes seeds mais les enlever un par un => tracer lÕerreurErreur fonction des positions des seedsÊ: gradient descentSi beta est trop grand, et gros contraste ˆ lÕintrieur de lÕobjet, la marche alatoire prfre sortirTe.sun@polSegnet-tensorflowNombre minimum de seeds pour < 10 % pour plusieurs imagesbeta* en fonction de la positionerreur(beta, std) plot 3Dbruiter frontire
-beta* sans GOT
-interface tkinter
-explication chien
-influence rgb
+Limitesï¿½: contrastes, bruit, diffï¿½rents contrastes selon diffï¿½entes directions (exï¿½: antenne)
+SegNetï¿½: combien dï¿½images nï¿½cessaires pour segmenter le carrï¿½ sur fond blanc, puis si dï¿½un coup deux CC dans lï¿½image
 
-Segnet petit bruit
-rotation progressive segnet
+Finalement, image mï¿½dicale 
+
+
+Rï¿½aprentissageï¿½?
+Preprocessingï¿½ou algorithme unique?
+
+Si le temps le permetï¿½: transfer learning de segnet pour lï¿½imagerie mï¿½dicale. Cb de nouvelles images pour apprendre lï¿½imagerie mï¿½dicale
+
+Conclusionï¿½: savoir dï¿½cider quelle mï¿½thode utiliser ï¿½tant donnï¿½ une image
+
+LRM abdominale
+3 couleursï¿½: autre, foie, tumeur
+
+Ajout de bruit,
+Superposition des contours,
+Image en fonction de beta, Rajouter moins de seeds,
+Image directionnelle,
+Composantes connexes
+
+
+Enregistrerï¿½:
+Positions des seeds
+Couleurs segmentation
+Image bruitï¿½e
+Bruit (proba)
+Beta
+Image initiale
+
+
+US Postal 
+The element of statiscal learning, friedman,
+Onglet data
+Chiffre 2 : rï¿½ussir ï¿½ segmenter les pixels noirs ï¿½ lï¿½intï¿½rieur
+Random walker soleil 
+Mï¿½mes seeds mais les enlever un par un => tracer lï¿½erreur
+
+Erreur fonction des positions des seedsï¿½: gradient descent
+Si beta est trop grand, et gros contraste ï¿½ lï¿½intï¿½rieur de lï¿½objet, la marche alï¿½atoire prï¿½fï¿½re sortir
+
+Te.sun@pol
+Segnet-tensorflow
+
+grgadient
+commenter code
+limite rwalker palaiseau
+autre image
+lÃ©gende segnet
+
+
+
+
+
+
