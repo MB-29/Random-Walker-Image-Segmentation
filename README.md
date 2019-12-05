@@ -29,4 +29,4 @@ python random_walker.py
 ![Add seeds and choose beta](demo/demo.gif)
 ### Output
 ![Contours](demo/output_colours.png)
-![Choose a value for beta and run](demo/outût_contours.png)
+![Choose a value for beta and run](demo/output_contours.png)
