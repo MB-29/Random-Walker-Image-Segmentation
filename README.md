@@ -23,7 +23,10 @@ python random_walker.py
 * Run the solver. 
 
 ## Demo
-
-![Select seeds of one colour](demo/demo_click.gif)
-![Select seeds of another colour](demo/demo_click2.gif)
-![Choose a value for beta and run](demo/demo_beta.gif)
+### Input 
+![Input](demo/input.jpg)
+### Add seeds and choose beta
+![Add seeds and choose bet](demo/demo.gif)
+### Output
+![Contours](demo/output_colours.png)
+![Choose a value for beta and run](demo/outût_contours.png)
