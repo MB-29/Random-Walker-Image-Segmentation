@@ -11,7 +11,7 @@ import datetime
 from PIL import Image
 
 from utils import get_neighbour_pixels, get_ordered_nodelist, pixel_norm_2, gaussian, xy_array
-from config import COLOUR_RGB_MAP, COLOURS_DIC, OUTPUT_PATH
+from config import COLOUR_RGB_MAP, COLOURS_DIC, OUTPUT_PATH, SEEDS_PATH
 
 
 class Segmentation:
@@ -45,6 +45,8 @@ class Segmentation:
             except Exception as e:
                 print(e)
 
+    # Saver
+
     def save_object(self):
         file_path = os.path.join(
             OUTPUT_PATH, f'{self.segmenation_name}.pickle')
@@ -59,6 +61,8 @@ class Segmentation:
         with open(file_path, 'wb') as pickle_file:
             pickle.dump(self.segmentation_image, pickle_file)
 
+
+    # Mathematical solving steps
     def build_weighted_graph(self):
         for y, x in itertools.product(range(self.ny), range(self.nx)):
             neighbours = get_neighbour_pixels(x, y, self.nx, self.ny)
@@ -103,6 +107,16 @@ class Segmentation:
                 pixel_coords: self.seeds_dic[argmax_seed_coords]
             })
 
+    def solve(self):
+        self.solved = True
+        self.build_weighted_graph()
+        self.build_linear_algebra()
+        unseeded_potentials_list = self.solve_linear_systems()
+        self.assign_max_likelihood(unseeded_potentials_list)
+        return self.pixel_colour_dic
+
+
+    # Output methods
     def build_segmentation_image(self):
         image = np.zeros((self.ny, self.nx, 3))
         for i in range(self.ny):
@@ -122,13 +136,6 @@ class Segmentation:
         self.contours_array = contours_array
         return contours_array
 
-    def solve(self):
-        self.solved = True
-        self.build_weighted_graph()
-        self.build_linear_algebra()
-        unseeded_potentials_list = self.solve_linear_systems()
-        self.assign_max_likelihood(unseeded_potentials_list)
-        return self.pixel_colour_dic
 
     def plot_contours(self):
         if not self.solved:
@@ -163,7 +170,6 @@ class Segmentation:
         for seed in self.seeds_dic.keys():
             plt.plot(
                 *seed, color=self.seeds_dic[seed], marker='o', markeredgecolor='yellow')
-        print(f'Saving colours image to {output_path}')
         plt.savefig(output_path)
 
     def contours_to_png(self, path=None):
@@ -180,7 +186,6 @@ class Segmentation:
         for seed in self.seeds_dic.keys():
             plt.plot(
                 *seed, color=self.seeds_dic[seed], marker='o', markeredgecolor='yellow')
-        print(f'Saving contours image to {output_path}')
         plt.savefig(output_path)
 
     def seeds_to_png(self, path=None):
@@ -188,7 +193,6 @@ class Segmentation:
         if path:
             output_path = path
         plt.imshow(self.image_array, cmap='gray')
-        print(f'seeds : {self.seeds_dic}')
         for seed in self.seeds_dic.keys():
             print(f'plotting seed {seed}')
             plt.plot(
@@ -196,6 +200,7 @@ class Segmentation:
         print(f'Saving seeds image to {output_path}')
         plt.savefig(output_path)
 
+    # Ground of truth and error
     def compute_error(self, path=None):
         reference = self.reference
         if path:
@@ -213,6 +218,8 @@ class Segmentation:
         reference_image = np.array(Image.open(reference_path))
         self.reference = reference_image
 
+
+    # Add noise
     def add_noise(self, mean, std):
         noisy_image = self.image_array + \
             np.random.normal(mean, std, self.image_array.shape)

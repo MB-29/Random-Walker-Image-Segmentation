@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 OVAL_SIZE = 10
 COLOURS_DIC = {
@@ -17,4 +18,9 @@ COLOUR_RGB_MAP = {
 }
 INTENSITY_NORMALIZATION = np.sqrt(3) * 255
 
+SEEDS_PATH = os.path.join('input', 'seeds')
+IMAGES_PATH = os.path.join('input', 'images')
+GOT_PATH = os.path.join('input', 'got')
 OUTPUT_PATH = 'output'
+
+MAX_INTERFACE_WIDTH = 400

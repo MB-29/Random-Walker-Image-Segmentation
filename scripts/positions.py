@@ -8,10 +8,14 @@ from scipy import optimize
 
 from utils import xy_array
 from segmentation import Segmentation
+import config
 
-seeds_file_path = os.path.join('input', 'chien_', 'chien_10_seeds.pickle')
+# Load input
 
-image_path = os.path.join('input', 'chien_', 'chien.png')
+seeds_file_path = os.path.join(config.SEEDS_PATH, 'dog_10_seeds.pickle')
+image_path = os.path.join(config.IMAGES_PATH, 'chien.png')
+target_segmentation_path = os.path.join(config.GOT_PATH, 'chien_got.png')
+
 image_name = os.path.splitext(image_path)[0]
 image_name = os.path.basename(image_path)
 image = Image.open(image_path)
@@ -23,9 +27,7 @@ index = 0
 beta = 1000
 colour = 'red'
 
-correct_segmentation_path = 'input/chien_/chien_got.png'
-
-
+# error function
 def error(coords_list):
     seeds = fixed_seeds.copy()
     print(f'coordinate list : {coords_list}')
@@ -34,12 +36,12 @@ def error(coords_list):
         coordinate = (int(coords_list[2*index]), int(coords_list[2*index+1]))
         seeds.update({coordinate: colour})
     segmentation = Segmentation(
-        image_array, beta, seeds, image_name, reference_path=correct_segmentation_path)
+        image_array, beta, seeds, image_name, reference_path=target_segmentation_path)
     segmentation.solve()
     segmentation.build_segmentation_image()
     return segmentation.compute_error()
 
-
+# integer constraint
 cons = {'type': 'eq', 'fun': lambda x: max(
     [x[i]-int(x[i]) for i in range(len(x))])}
 
@@ -50,18 +52,18 @@ initial_variable_seeds = {key: value for key,
 initial_coords = list(initial_variable_seeds.keys())
 print(f'initial coords = {initial_coords}')
 
-# optimal_coords = optimize.minimize(
-# error, initial_coords, method='nelder-mead', constraints=cons, options={'xtol': 1e-3, 'disp': True})
-optimal_coords = [129, 33, 142, 96, 127, 139, 199, 111, 178, 80, 195, 31]
+optimal_coords = optimize.minimize(
+error, initial_coords, method='nelder-mead', constraints=cons, options={'xtol': 1e-3, 'disp': True})
 
 optimal_seeds = fixed_seeds
 for index in range(len(optimal_coords)//2):
     coordinate = (int(optimal_coords[2*index]), int(optimal_coords[2*index+1]))
     optimal_seeds.update({coordinate: colour})
+
+# optimal segmentation
 segmentation = Segmentation(image_array, beta, optimal_seeds,
-                            image_name, reference_path=correct_segmentation_path)
+                            image_name, reference_path=target_segmentation_path)
 segmentation.solve()
 segmentation.build_segmentation_image()
 segmentation.compute_error()
 segmentation.contours_to_png()
-# segmentation.segmentation_to_png()

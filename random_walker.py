@@ -22,12 +22,16 @@ def interface():
     root = Tk()
     frame = Frame(root)
 
-    # Choose image
+    # Choose an image
     image_path = askopenfilename(parent=root, title='Select an image.')
     image_name = os.path.splitext(os.path.basename(image_path))[0]
     print(f'opening image {image_path}')
     image = Image.open(image_path)
-    tk_image = ImageTk.PhotoImage(image)
+    width, height = image.size
+    resized_image = image.resize((config.MAX_INTERFACE_WIDTH, int(
+        config.MAX_INTERFACE_WIDTH*height/width)))
+
+    tk_image = ImageTk.PhotoImage(resized_image)
     height, width = tk_image.height(), tk_image.width()
 
     # Build canvas
@@ -40,6 +44,7 @@ def interface():
 
     canvas.create_image(0, 0, image=tk_image, anchor="nw")
     canvas.config(scrollregion=canvas.bbox(ALL))
+
     image_array = xy_array(np.array(image))
 
     save_segmentation = IntVar()
@@ -52,11 +57,13 @@ def interface():
         root, text="Draw contours", var=draw_contours)
     draw_contours_button.pack()
 
+    # Button-called functions
+
     def on_solve():
         beta_parameter = float(beta_entry.get())
         segmentation = Segmentation(
             image_array, beta_parameter, seeds, image_name)
-            
+
         segmentation.solve()
 
         if save_segmentation.get():
@@ -72,11 +79,13 @@ def interface():
     def save_seeds():
         image_directory_path = os.path.dirname(image_path)
         seeds_file_name = f'{image_name}_{len(seeds.keys())}_seeds.pickle'
-        seeds_file_path = os.path.join(image_directory_path, seeds_file_name)
+        seeds_file_path = os.path.join(config.SEEDS_PATH, seeds_file_name)
         print(f'Saving seeds to {seeds_file_path}')
         with open(seeds_file_path, 'wb') as pickle_file:
             pickle.dump(seeds, pickle_file)
 
+    # Set buttons
+    
     solve_button = Button(root, text="Solve", command=on_solve)
     solve_button.pack()
 
@@ -95,6 +104,7 @@ def interface():
     CURRENT_COLOUR = StringVar()
     seed_ovals = []
 
+    # Interface operations
     def add_seed(event):
         if not CURRENT_COLOUR.get():
             print('No colour selected !')
@@ -124,8 +134,6 @@ def interface():
     root.mainloop()
 
 # Transform event coordinates into canvas coordinates
-
-
 def canvas_coords(event, canvas):
     return (canvas.canvasx(event.x), canvas.canvasy(event.y))
 
