@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt
 from numpy import log
 
 def record_time(nx, ny, K, timing):

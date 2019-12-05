@@ -77,7 +77,6 @@ def interface():
         segmentation.plot_colours()
 
     def save_seeds():
-        image_directory_path = os.path.dirname(image_path)
         seeds_file_name = f'{image_name}_{len(seeds.keys())}_seeds.pickle'
         seeds_file_path = os.path.join(config.SEEDS_PATH, seeds_file_name)
         print(f'Saving seeds to {seeds_file_path}')
