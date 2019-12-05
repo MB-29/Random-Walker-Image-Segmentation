@@ -18,7 +18,8 @@ python random_walker.py
 ```
 
 * Select an image.
-* Create seed points chosing different colours.
+* Select a color and add seed points by pointing and clicking.
+* Type a value for beta
 * Run the solver. 
 
 ## Demo
