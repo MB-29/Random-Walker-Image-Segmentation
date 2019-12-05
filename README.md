@@ -26,7 +26,7 @@ python random_walker.py
 ### Input 
 ![Input](demo/input.jpg)
 ### Add seeds and choose beta
-![Add seeds and choose bet](demo/demo.gif)
+![Add seeds and choose beta](demo/demo.gif)
 ### Output
 ![Contours](demo/output_colours.png)
 ![Choose a value for beta and run](demo/outût_contours.png)
