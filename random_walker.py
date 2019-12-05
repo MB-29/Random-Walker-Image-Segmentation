@@ -28,8 +28,7 @@ def interface():
     print(f'opening image {image_path}')
     image = Image.open(image_path)
     width, height = image.size
-    resized_image = image.resize((config.MAX_INTERFACE_WIDTH, int(
-        config.MAX_INTERFACE_WIDTH*height/width)))
+    resized_image = image.resize((int(config.MAX_INTERFACE_HEIGHT*width/height), config.MAX_INTERFACE_HEIGHT))
 
     tk_image = ImageTk.PhotoImage(resized_image)
     height, width = tk_image.height(), tk_image.width()
@@ -45,7 +44,7 @@ def interface():
     canvas.create_image(0, 0, image=tk_image, anchor="nw")
     canvas.config(scrollregion=canvas.bbox(ALL))
 
-    image_array = xy_array(np.array(image))
+    image_array = xy_array(np.array(resized_image))
 
     save_segmentation = IntVar()
     save_segmentation_button = Checkbutton(

@@ -23,4 +23,4 @@ IMAGES_PATH = os.path.join('input', 'images')
 GOT_PATH = os.path.join('input', 'got')
 OUTPUT_PATH = 'output'
 
-MAX_INTERFACE_WIDTH = 400
+MAX_INTERFACE_HEIGHT = 300
