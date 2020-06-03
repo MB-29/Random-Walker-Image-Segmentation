@@ -1,5 +1,5 @@
 # Random Walker Algorithm project
-
+An implementation of the image segmentation Random Walker algorithm.
 ## Demo
 
 ### Input 
